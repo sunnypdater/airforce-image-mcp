@@ -1,0 +1,38 @@
+{
+  "name": "airforce-image-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Airforce image generation API",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": { "airforce-image-mcp": "./dist/cli.js" },
+  "files": ["dist/", "README.md", ".env.example"],
+  "engines": { "node": ">=18.0.0" },
+  "scripts": {
+    "build": "esbuild src/index.ts src/cli.ts --bundle --platform=node --target=node18 --format=esm --outdir=dist --external:@modelcontextprotocol/* --external:pino",
+    "start": "node dist/index.js",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/**/*.ts",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.0",
+    "pino": "^9.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.0.0",
+    "globals": "^17.5.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.0"
+  },
+  "ts-node": { "esm": true }
+}
