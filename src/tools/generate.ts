@@ -36,9 +36,9 @@ export function registerGenerateTool(server: McpServer): void {
         .default("flux-2-pro")
         .describe("Image model to use for generation"),
       n: z.number().int().min(1).max(4).optional().default(1).describe("Number of images to generate"),
-      size: z.enum(["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]).optional().default("1024x1024").describe("Image size"),
+      size: z.enum(["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]).optional().describe("Image size"),
       response_format: z.enum(["url", "b64_json"]).optional().default("b64_json").describe("Response format"),
-      aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).optional().default("1:1").describe("Aspect ratio"),
+      aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]).describe("Aspect ratio"),
       resolution: z.enum(["1K", "2K", "4K"]).optional().default("1K").describe("Image resolution"),
     },
     async ({ prompt, model, n, size, response_format, aspectRatio, resolution }) => {
