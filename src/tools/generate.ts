@@ -5,6 +5,8 @@ import { mcpError } from "../errors.js";
 import { validatePromptWithParams } from "../validation.js";
 import { withRequestId } from "../context.js";
 import { logger } from "../logger.js";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
 
 const API_BASE = "https://api.airforce/v1";
 
@@ -31,11 +33,11 @@ export function registerGenerateTool(server: McpServer): void {
           "z-image",
         ])
         .optional()
-        .default("nano-banana-2")
+        .default("flux-2-pro")
         .describe("Image model to use for generation"),
       n: z.number().int().min(1).max(4).optional().default(1).describe("Number of images to generate"),
       size: z.enum(["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]).optional().default("1024x1024").describe("Image size"),
-      response_format: z.enum(["url", "b64_json"]).optional().default("url").describe("Response format"),
+      response_format: z.enum(["url", "b64_json"]).optional().default("b64_json").describe("Response format"),
       aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).optional().default("1:1").describe("Aspect ratio"),
       resolution: z.enum(["1K", "2K", "4K"]).optional().default("1K").describe("Image resolution"),
     },
@@ -62,7 +64,15 @@ export function registerGenerateTool(server: McpServer): void {
           const content: Array<{ type: "text"; text: string } | { type: "image"; data: string; mimeType: string }> = [];
           for (const img of data.data) {
             if (response_format === "url" && img.url) content.push({ type: "text", text: img.url });
-            else if (response_format === "b64_json" && img.b64_json) content.push({ type: "image", data: img.b64_json, mimeType: "image/png" });
+            else if (response_format === "b64_json" && img.b64_json) {
+              const outDir = join(process.cwd(), "output");
+              mkdirSync(outDir, { recursive: true });
+              const filename = `image-${Date.now()}.png`;
+              const filepath = join(outDir, filename);
+              writeFileSync(filepath, Buffer.from(img.b64_json, "base64"));
+              content.push({ type: "image", data: img.b64_json, mimeType: "image/png" });
+              content.push({ type: "text", text: `Saved to: ${filepath}` });
+            }
           }
           return { content };
         } catch (err) {
